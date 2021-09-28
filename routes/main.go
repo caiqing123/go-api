@@ -11,10 +11,10 @@ func SetRoutes(router *gin.Engine) {
 
 	v1 := router.Group("/v1")
 	{
-		v1.GET("hello",
+		v1.GET("api",
 			middleware.CorsMiddleware(),
 			func(ctx *gin.Context) {
-				hello := controllers.HelloController{}
+				hello := controllers.ApiController{}
 				hello.Index(ctx)
 			},
 		)
