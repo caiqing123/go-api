@@ -9,6 +9,11 @@ import (
 	"github.com/mix-go/xcli"
 )
 
+// @title api
+// @version 1.0
+// @description api desc
+// @host 127.0.0.1:8022
+// @BasePath /pay/
 func main() {
 	xcli.SetName("app").
 		SetVersion("0.0.0-alpha").

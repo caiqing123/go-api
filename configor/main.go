@@ -7,11 +7,19 @@ import (
 )
 
 var Config = struct {
-	Foo string
+	Alipay struct {
+		AppId      string
+		PublicKey  string
+		PrivateKey string
+		NotifyUrl  string
+		ReturnUrl  string
+		IsProd     bool
+	}
 }{}
 
 func init() {
 	// Conf support YAML, JSON, TOML, Shell Environment
+	// auto reload configuration every second configor.New(&configor.Config{AutoReload: true})
 	if err := configor.Load(&Config, fmt.Sprintf("%s/../conf/config.yml", argv.Program().Dir)); err != nil {
 		panic(err)
 	}

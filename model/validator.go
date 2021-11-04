@@ -31,11 +31,11 @@ func InitTrans(model interface{}) validator.ValidationErrorsTranslations {
 			var errList = make(map[string]string, len(errors))
 			//修改返回格式
 			for _, err := range errors {
-				// 获取原来的标签 - json
+				// 获取原来的标签 - form
 				fieldName := err.StructField()
 				t := reflect.TypeOf(model)
 				field, _ := t.FieldByName(fieldName)
-				j := field.Tag.Get("json")
+				j := field.Tag.Get("form")
 				// 修改
 				errList[j] = err.Translate(trans)
 			}
@@ -44,5 +44,3 @@ func InitTrans(model interface{}) validator.ValidationErrorsTranslations {
 	}
 	return nil
 }
-
-

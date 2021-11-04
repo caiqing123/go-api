@@ -2,8 +2,11 @@ package routes
 
 import (
 	"api/controllers"
+	_ "api/docs"
 	"api/middleware"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetRoutes(router *gin.Engine) {
@@ -37,4 +40,22 @@ func SetRoutes(router *gin.Engine) {
 			test.Index(ctx)
 		})
 	}
+
+	pay := router.Group("/pay", middleware.CorsMiddleware())
+	{
+		pay.POST("wechat",
+			func(ctx *gin.Context) {
+				wechat := controllers.WechatPayController{}
+				wechat.Index(ctx)
+			},
+		)
+
+		pay.POST("alipay",
+			func(ctx *gin.Context) {
+				alipay := controllers.AlipayController{}
+				alipay.Index(ctx)
+			},
+		)
+	}
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 }

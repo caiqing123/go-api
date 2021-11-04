@@ -1,22 +1,16 @@
-## Mix API Skeleton
+## API 
 
-- Install
-
-~~~
-go get -u github.com/mix-go/mixcli
-~~~
-
-- New project
+- swagger 使用
 
 ~~~
-mixcli new hello
-~~~
+安装
+go get -u github.com/swaggo/swag/cmd/swag
+go get -u github.com/swaggo/gin-swagger
+go get -u github.com/swaggo/files
 
+生成接口文档数据
+swag init
+
+访问地址
+swagger/index.html
 ~~~
- Use the arrow keys to navigate: ↓ ↑ → ← 
- ? Select project type:
-     CLI
-   ▸ API
-     Web (contains the websocket)
-     gRPC
- ~~~

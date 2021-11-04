@@ -1,0 +1,108 @@
+basePath: /pay/
+definitions:
+  controllers.AlipayData:
+    properties:
+      url:
+        type: string
+    type: object
+  pay.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      message:
+        type: string
+    type: object
+  pay.ResponseError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  pay.ResponseVerificationErr:
+    properties:
+      code:
+        type: integer
+      message:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+host: 127.0.0.1:8022
+info:
+  contact: {}
+  description: api desc
+  title: api
+  version: "1.0"
+paths:
+  /alipay/:
+    post:
+      description: 支付宝支付下单
+      parameters:
+      - default: h5
+        description: 支付类型
+        in: formData
+        name: type
+        required: true
+        type: string
+      - default: 测试
+        description: 商品名称
+        in: formData
+        name: subject
+        required: true
+        type: string
+      - default: 0.01
+        description: 金额
+        in: formData
+        name: amount
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/pay.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/controllers.AlipayData'
+              type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/pay.ResponseVerificationErr'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/pay.ResponseError'
+      summary: 支付宝支付
+      tags:
+      - 支付宝支付
+  /wechat/:
+    post:
+      description: 微信支付下单
+      parameters:
+      - default: h5
+        description: 支付类型
+        in: formData
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/pay.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/pay.ResponseError'
+      summary: 微信支付
+      tags:
+      - 微信支付
+swagger: "2.0"
