@@ -15,6 +15,17 @@ var Config = struct {
 		ReturnUrl  string
 		IsProd     bool
 	}
+	Wechat struct {
+		AppId      string
+		MchId      string
+		ApiKey     string
+		SerialNo   string
+		ApiV3Key   string
+		PrivateKey string
+		NotifyUrl  string
+		ReturnUrl  string
+		IsProd     bool
+	}
 }{}
 
 func init() {

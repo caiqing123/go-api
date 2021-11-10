@@ -15,10 +15,13 @@ func init() {
 	obj := xdi.Object{
 		Name: "zap",
 		New: func() (i interface{}, e error) {
-			filename := fmt.Sprintf("%s/../runtime/logs/mix.log", xcli.App().BasePath)
+			filename := fmt.Sprintf("%s/../runtime/logs/%s.log", xcli.App().BasePath, time.Now().Format("2006-01-02"))
 			fileRotate := &lumberjack.Logger{
-				Filename:   filename,
-				MaxBackups: 7,
+				Filename:  filename,
+				MaxSize:   1,
+				MaxAge:    30,
+				LocalTime: true,
+				Compress:  false,
 			}
 			atomicLevel := zap.NewAtomicLevelAt(zap.InfoLevel)
 			core := zapcore.NewCore(

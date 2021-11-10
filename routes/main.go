@@ -43,19 +43,46 @@ func SetRoutes(router *gin.Engine) {
 
 	pay := router.Group("/pay", middleware.CorsMiddleware())
 	{
-		pay.POST("wechat",
-			func(ctx *gin.Context) {
-				wechat := controllers.WechatPayController{}
-				wechat.Index(ctx)
-			},
-		)
+		wechat := pay.Group("wechat")
+		{
+			wechat.POST("/v2",
+				func(ctx *gin.Context) {
+					wechat := controllers.WechatV2PayController{}
+					wechat.Index(ctx)
+				},
+			)
 
-		pay.POST("alipay",
-			func(ctx *gin.Context) {
-				alipay := controllers.AlipayController{}
-				alipay.Index(ctx)
-			},
-		)
+			wechat.Any("/v2/notify",
+				func(ctx *gin.Context) {
+					wechat := controllers.WechatV2PayController{}
+					wechat.Notify(ctx)
+				},
+			)
+
+			wechat.POST("/v3",
+				func(ctx *gin.Context) {
+					wechat := controllers.WechatV3PayController{}
+					wechat.Index(ctx)
+				},
+			)
+		}
+
+		alipay := pay.Group("alipay")
+		{
+			alipay.POST("/",
+				func(ctx *gin.Context) {
+					alipay := controllers.AlipayController{}
+					alipay.Index(ctx)
+				},
+			)
+			alipay.Any("/notify",
+				func(ctx *gin.Context) {
+					alipay := controllers.AlipayController{}
+					alipay.Notify(ctx)
+				},
+			)
+		}
+
 	}
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 }

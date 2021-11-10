@@ -8,11 +8,12 @@ import (
 	"api/pkg/util"
 	"api/pkg/xlog"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
 type AlipayValidate struct {
-	Types   string  `form:"type" validate:"required" label:"类型"`
+	Types   string  `form:"type" validate:"required,oneof=h5 app pc" label:"类型"`
 	Subject string  `form:"subject" validate:"required" label:"商品名称"`
 	Amount  float64 `form:"amount" validate:"required,gt=0" label:"金额"`
 }
@@ -24,7 +25,7 @@ type AlipayData struct {
 type AlipayController struct {
 }
 
-// alipay
+// Index alipay
 // @Summary 支付宝支付
 // @Description 支付宝支付下单
 // @Tags 支付宝支付
@@ -44,16 +45,15 @@ func (t *AlipayController) Index(c *gin.Context) {
 		xlog.Error(err)
 		return
 	}
-	xlog.Error("param:", param.Types)
 	verificationErr := model.InitTrans(param)
 	if verificationErr != nil {
 		c.JSON(http.StatusUnprocessableEntity, pay.ResponseVerificationErr{Code: http.StatusUnprocessableEntity, Message: verificationErr})
 		return
 	}
 
-	config := configor.Config
+	config := configor.Config.Alipay
 
-	client, err := alipay.NewClient(config.Alipay.AppId, config.Alipay.PrivateKey, config.Alipay.IsProd)
+	client, err := alipay.NewClient(config.AppId, config.PrivateKey, config.IsProd)
 	if err != nil {
 		xlog.Error(err)
 		return
@@ -61,7 +61,7 @@ func (t *AlipayController) Index(c *gin.Context) {
 	//配置公共参数
 	client.SetCharset("utf-8").
 		SetSignType(alipay.RSA2).
-		SetNotifyUrl(config.Alipay.NotifyUrl)
+		SetNotifyUrl(config.NotifyUrl)
 
 	subject := param.Subject
 	amount := param.Amount
@@ -75,7 +75,7 @@ func (t *AlipayController) Index(c *gin.Context) {
 		bm := make(pay.BodyMap)
 		bm.Set("subject", subject)
 		bm.Set("out_trade_no", tradeNo)
-		bm.Set("quit_url", config.Alipay.ReturnUrl)
+		bm.Set("quit_url", config.ReturnUrl)
 		bm.Set("total_amount", amount)
 		bm.Set("product_code", "QUICK_WAP_WAY")
 		//手机网站支付请求
@@ -117,4 +117,26 @@ func (t *AlipayController) Index(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, pay.Response{Code: http.StatusOK, Message: pay.SUCCESS, Data: data})
+}
+
+func (t *AlipayController) Notify(c *gin.Context) {
+	config := configor.Config
+
+	// 解析请求参数
+	bm, err := alipay.ParseNotifyToBodyMap(c.Request)
+	if err != nil {
+		xlog.Error("err:", err)
+		return
+	}
+	xlog.Debug("notifyReq:", bm)
+
+	// 验签
+	ok, err := alipay.VerifySign(config.Alipay.PublicKey, bm)
+	if err != nil {
+		xlog.Error("err:", err)
+		c.String(http.StatusOK, pay.FAIL)
+		return
+	}
+	log.Println("支付宝验签是否通过:", ok)
+	c.String(http.StatusOK, pay.SUCCESS)
 }

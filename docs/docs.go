@@ -128,12 +128,93 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/wechat/v2/": {
+            "post": {
+                "description": "微信支付下单",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "微信支付"
+                ],
+                "summary": "微信支付",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "h5",
+                        "description": "支付类型",
+                        "name": "type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "default": "测试",
+                        "description": "商品名称",
+                        "name": "subject",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "number",
+                        "default": 0.01,
+                        "description": "金额",
+                        "name": "amount",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/pay.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/controllers.WechatV2Data"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/pay.ResponseVerificationErr"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/pay.ResponseError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "controllers.AlipayData": {
             "type": "object",
             "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.WechatV2Data": {
+            "type": "object",
+            "properties": {
+                "pay_sign": {
+                    "type": "string"
+                },
                 "url": {
                     "type": "string"
                 }

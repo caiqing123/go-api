@@ -1,11 +1,10 @@
 package aes
 
 import (
+	"api/pkg/util"
 	"crypto/aes"
 	"crypto/cipher"
 	"fmt"
-
-	"github.com/go-pay/gopay/pkg/util"
 )
 
 func GCMEncrypt(originText, additional, key []byte) (nonce []byte, cipherText []byte, err error) {

@@ -8,10 +8,10 @@ import (
 	"net/http"
 )
 
-type WechatPayController struct {
+type WechatV3PayController struct {
 }
 
-// wechat
+// Index wechat
 // @Summary 微信支付
 // @Description 微信支付下单
 // @Tags 微信支付
@@ -20,7 +20,7 @@ type WechatPayController struct {
 // @Success 200 {object} pay.Response
 // @Failure 500 {object} pay.ResponseError
 // @Router /wechat/ [post]
-func (t *WechatPayController) Index(c *gin.Context) {
+func (t *WechatV3PayController) Index(c *gin.Context) {
 
 	types := c.PostForm("type")
 	//types := c.DefaultPostForm("type","h5")
