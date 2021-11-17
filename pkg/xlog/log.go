@@ -1,60 +1,57 @@
 package xlog
 
-var (
-	debugLog XLogger = &DebugLogger{}
-	infoLog  XLogger = &InfoLogger{}
-	warnLog  XLogger = &WarnLogger{}
-	errLog   XLogger = &ErrorLogger{}
+import (
+	"api/di"
+	"fmt"
+	"runtime"
 )
 
-type XLogger interface {
-	LogOut(col *ColorType, format *string, args ...interface{})
-}
+var zap = di.Zap()
 
 func Info(args ...interface{}) {
-	infoLog.LogOut(nil, nil, args...)
+	_, file, line, _ := runtime.Caller(1)
+	files := fmt.Sprintf(" file:	%s:%d", file, line)
+	InfoLogOut(nil, append(args, files)...)
 }
 
 func Infof(format string, args ...interface{}) {
-	infoLog.LogOut(nil, &format, args...)
+	_, file, line, _ := runtime.Caller(1)
+	format = fmt.Sprintf("%s file: %s:%d", format, file, line)
+	InfoLogOut(&format, args...)
 }
 
 func Debug(args ...interface{}) {
-	debugLog.LogOut(nil, nil, args...)
+	_, file, line, _ := runtime.Caller(1)
+	files := fmt.Sprintf(" file: %s:%d", file, line)
+	DebugLogOut(nil, append(args, files)...)
 }
 
 func Debugf(format string, args ...interface{}) {
-	debugLog.LogOut(nil, &format, args...)
+	_, file, line, _ := runtime.Caller(1)
+	format = fmt.Sprintf("%s file: %s:%d", format, file, line)
+	DebugLogOut(&format, args...)
 }
 
 func Warn(args ...interface{}) {
-	warnLog.LogOut(nil, nil, args...)
+	_, file, line, _ := runtime.Caller(1)
+	files := fmt.Sprintf(" file: %s:%d", file, line)
+	WarnLogOut(nil, append(args, files)...)
 }
 
 func Warnf(format string, args ...interface{}) {
-	warnLog.LogOut(nil, &format, args...)
+	_, file, line, _ := runtime.Caller(1)
+	format = fmt.Sprintf("%s file: %s:%d", format, file, line)
+	WarnLogOut(&format, args...)
 }
 
 func Error(args ...interface{}) {
-	errLog.LogOut(nil, nil, args...)
+	_, file, line, _ := runtime.Caller(1)
+	files := fmt.Sprintf(" file: %s:%d", file, line)
+	ErrorLogOut(nil, append(args, files)...)
 }
 
 func Errorf(format string, args ...interface{}) {
-	errLog.LogOut(nil, &format, args...)
-}
-
-func SetDebugLog(logger XLogger) {
-	debugLog = logger
-}
-
-func SetInfoLog(logger XLogger) {
-	infoLog = logger
-}
-
-func SetWarnLog(logger XLogger) {
-	warnLog = logger
-}
-
-func SetErrLog(logger XLogger) {
-	errLog = logger
+	_, file, line, _ := runtime.Caller(1)
+	format = fmt.Sprintf("%s file: %s:%d", format, file, line)
+	ErrorLogOut(&format, args...)
 }

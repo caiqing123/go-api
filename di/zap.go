@@ -18,7 +18,7 @@ func init() {
 			filename := fmt.Sprintf("%s/../runtime/logs/%s.log", xcli.App().BasePath, time.Now().Format("2006-01-02"))
 			fileRotate := &lumberjack.Logger{
 				Filename:  filename,
-				MaxSize:   1,
+				MaxSize:   10,
 				MaxAge:    30,
 				LocalTime: true,
 				Compress:  false,
@@ -38,7 +38,7 @@ func init() {
 						enc.AppendString(t.Format("2006-01-02 15:04:05.000"))
 					},
 					EncodeDuration: zapcore.StringDurationEncoder,
-					EncodeCaller:   zapcore.ShortCallerEncoder,
+					EncodeCaller:   zapcore.ShortCallerEncoder, //路径 为短路径 FullCallerEncoder 全路径
 				}),
 				zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(fileRotate)),
 				atomicLevel,

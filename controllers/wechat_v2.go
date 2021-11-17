@@ -115,6 +115,7 @@ func (t *WechatV2PayController) Index(c *gin.Context) {
 func (t *WechatV2PayController) Notify(c *gin.Context) {
 	rsp := new(wechat.NotifyResponse)
 
+	xlog.Infof("tradeNo %s", "tradeNo")
 	// 解析参数
 	bodyMap, err := wechat.ParseNotifyToBodyMap(c.Request)
 	if err != nil {
