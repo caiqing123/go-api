@@ -1,10 +1,9 @@
 package xtime
 
 import (
+	"api/pkg/util"
 	"strings"
 	"time"
-
-	"github.com/go-pay/gopay/pkg/util"
 )
 
 //解析时间

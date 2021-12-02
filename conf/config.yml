@@ -7,12 +7,11 @@ alipay:
   isprod: false
 
 wechat:
-  appid: wx4a9862665c18236e
-  mchid: 1516759961
-  apikey: tqhy2018tqhy2018tqhy2018tqhy2018
+  appid: xxx
+  mchid: xxx
+  apikey: xxx
   serialno: serialno
   apiv3key: apiv3key
-  privatekey: privatekey
   notifyurl: https://www.xxx.com
   returnurl: https://www.xxx.com
   isprod: false

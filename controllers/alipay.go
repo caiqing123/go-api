@@ -13,7 +13,7 @@ import (
 )
 
 type AlipayValidate struct {
-	Types   string  `form:"type" validate:"required,oneof=h5 app pc" label:"类型"`
+	Types   string  `form:"type" validate:"required,oneof=h5 app pc sm" label:"类型"`
 	Subject string  `form:"subject" validate:"required" label:"商品名称"`
 	Amount  float64 `form:"amount" validate:"required,gt=0" label:"金额"`
 }
@@ -111,6 +111,20 @@ func (t *AlipayController) Index(c *gin.Context) {
 			return
 		}
 		data.Url = payUrl
+	case "sm":
+		bm := make(pay.BodyMap)
+		bm.Set("subject", subject)
+		bm.Set("out_trade_no", tradeNo)
+		bm.Set("total_amount", amount)
+
+		//扫码支付请求
+		payUrl, err := client.TradePrecreate(c, bm)
+		if err != nil {
+			xlog.Error("err:", err)
+			return
+		}
+		xlog.Debug("payUrl:", payUrl)
+		data.Url = payUrl.Response.QrCode
 	default:
 		c.JSON(http.StatusInternalServerError, pay.ResponseError{Code: http.StatusInternalServerError, Message: "not type"})
 		return

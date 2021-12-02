@@ -65,6 +65,13 @@ func SetRoutes(router *gin.Engine) {
 					wechat.Index(ctx)
 				},
 			)
+
+			wechat.Any("/v3/notify",
+				func(ctx *gin.Context) {
+					wechat := controllers.WechatV3PayController{}
+					wechat.Notify(ctx)
+				},
+			)
 		}
 
 		alipay := pay.Group("alipay")

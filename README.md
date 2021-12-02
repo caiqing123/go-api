@@ -14,3 +14,8 @@ swag init
 访问地址
 swagger/index.html
 ~~~
+
+如果编译时报错，整理一下依赖
+~~~
+go mod tidy
+~~~

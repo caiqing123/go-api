@@ -1,12 +1,9 @@
 package xlog
 
 import (
-	"api/di"
 	"fmt"
 	"runtime"
 )
-
-var zap = di.Zap()
 
 func Info(args ...interface{}) {
 	_, file, line, _ := runtime.Caller(1)

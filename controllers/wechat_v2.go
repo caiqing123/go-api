@@ -14,7 +14,7 @@ import (
 )
 
 type WechatV2Validate struct {
-	Types   string  `form:"type" validate:"required,oneof=h5 app min" label:"类型"`
+	Types   string  `form:"type" validate:"required,oneof=h5 app min sm" label:"类型"`
 	Subject string  `form:"subject" validate:"required" label:"商品名称"`
 	Amount  float64 `form:"amount" validate:"required,gt=0" label:"金额"`
 }
@@ -65,24 +65,9 @@ func (t *WechatV2PayController) Index(c *gin.Context) {
 		Set("total_fee", param.Amount*100).
 		Set("spbill_create_ip", "127.0.0.1").
 		Set("notify_url", config.NotifyUrl).
-		Set("trade_type", wechat.TradeType_H5).
+		Set("trade_type", wechat.TradeType_App).
 		Set("device_info", "WEB").
-		Set("sign_type", wechat.SignType_MD5).
-		SetBodyMap("scene_info", func(bm pay.BodyMap) {
-			bm.SetBodyMap("h5_info", func(bm pay.BodyMap) {
-				bm.Set("type", "Wap")
-				bm.Set("wap_url", config.ReturnUrl)
-				bm.Set("wap_name", param.Subject)
-			})
-		}) /*.Set("openid", "xxx")*/
-
-	//请求支付下单，成功后得到结果
-	wxRsp, err := client.UnifiedOrder(c, bm)
-	if err != nil {
-		xlog.Error(err)
-		return
-	}
-	xlog.Debug("Response：", wxRsp)
+		Set("sign_type", wechat.SignType_MD5)
 
 	timeStamp := strconv.FormatInt(time.Now().Unix(), 10)
 
@@ -91,18 +76,67 @@ func (t *WechatV2PayController) Index(c *gin.Context) {
 	switch param.Types {
 
 	case "app":
+		bm.Set("trade_type", wechat.TradeType_App)
+
+		//请求支付下单，成功后得到结果
+		wxRsp, err := client.UnifiedOrder(c, bm)
+		if err != nil {
+			xlog.Error(err)
+			return
+		}
+		xlog.Debug("Response：", wxRsp)
 		paySign := wechat.GetAppPaySign(config.AppId, "", wxRsp.NonceStr, wxRsp.PrepayId, wechat.SignType_MD5, timeStamp, config.ApiKey)
-		data.Url = wxRsp.MwebUrl
+		data.Url = wxRsp.PrepayId
 		data.PaySign = paySign
 	case "h5":
+		bm.Set("trade_type", wechat.TradeType_H5).
+			SetBodyMap("scene_info", func(bm pay.BodyMap) {
+				bm.SetBodyMap("h5_info", func(bm pay.BodyMap) {
+					bm.Set("type", "Wap")
+					bm.Set("wap_url", config.ReturnUrl)
+					bm.Set("wap_name", param.Subject)
+				})
+			}) /*.Set("openid", "xxx")*/
+
+		//请求支付下单，成功后得到结果
+		wxRsp, err := client.UnifiedOrder(c, bm)
+		if err != nil {
+			xlog.Error(err)
+			return
+		}
+		xlog.Debug("Response：", wxRsp)
 		pac := "prepay_id=" + wxRsp.PrepayId
 		paySign := wechat.GetJsapiPaySign(config.AppId, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, config.ApiKey)
 		data.Url = wxRsp.MwebUrl
 		data.PaySign = paySign
+	case "sm":
+		bm.Set("trade_type", wechat.TradeType_Native)
+
+		//请求支付下单，成功后得到结果
+		wxRsp, err := client.UnifiedOrder(c, bm)
+		if err != nil {
+			xlog.Error(err)
+			return
+		}
+		xlog.Debug("Response：", wxRsp)
+		pac := "prepay_id=" + wxRsp.PrepayId
+		paySign := wechat.GetJsapiPaySign(config.AppId, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, config.ApiKey)
+		data.Url = wxRsp.CodeUrl
+		data.PaySign = paySign
 	case "min":
+		bm.Set("trade_type", wechat.TradeType_Mini).
+			Set("openid", "xxx")
+
+		//请求支付下单，成功后得到结果
+		wxRsp, err := client.UnifiedOrder(c, bm)
+		if err != nil {
+			xlog.Error(err)
+			return
+		}
+		xlog.Debug("Response：", wxRsp)
 		pac := "prepay_id=" + wxRsp.PrepayId
 		paySign := wechat.GetMiniPaySign(config.AppId, wxRsp.NonceStr, pac, wechat.SignType_MD5, timeStamp, config.ApiKey)
-		data.Url = wxRsp.MwebUrl
+		data.Url = wxRsp.PrepayId
 		data.PaySign = paySign
 	default:
 		c.JSON(http.StatusInternalServerError, pay.ResponseError{Code: http.StatusInternalServerError, Message: "not type"})
@@ -115,7 +149,6 @@ func (t *WechatV2PayController) Index(c *gin.Context) {
 func (t *WechatV2PayController) Notify(c *gin.Context) {
 	rsp := new(wechat.NotifyResponse)
 
-	xlog.Infof("tradeNo %s", "tradeNo")
 	// 解析参数
 	bodyMap, err := wechat.ParseNotifyToBodyMap(c.Request)
 	if err != nil {
